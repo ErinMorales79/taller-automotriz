@@ -1,0 +1,12 @@
+plugins {
+    id 'application'
+}
+
+dependencies {
+    implementation project(':nucleo')
+    implementation 'com.formdev:flatlaf:3.5.4'
+}
+
+application {
+    mainClass = 'com.taller.escritorio.Principal'
+}
