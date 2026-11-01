@@ -15,8 +15,9 @@ import java.util.UUID;
  * Base de las pruebas que usan MySQL. Todo se ejecuta sobre UNA conexión real dentro de una
  * transacción que se revierte al terminar, así la base queda intacta. Las conexiones que reciben
  * los DAO y los servicios son un envoltorio: close() y commit() no hacen nada definitivo y
- * rollback() vuelve al último "commit" simulado (un punto de guardado). Así también se puede
- * probar que un rollback realmente deshace lo escrito a medias.
+ * rollback() vuelve al inicio de la última transacción (punto de guardado marcado en
+ * setAutoCommit(false)). Así también se puede probar que un rollback realmente deshace lo
+ * escrito a medias, sin perder los datos de preparación de la prueba.
  */
 public abstract class BaseBD {
 
@@ -52,15 +53,18 @@ public abstract class BaseBD {
         return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(),
                 new Class<?>[]{Connection.class}, (proxy, metodo, argumentos) -> {
                     switch (metodo.getName()) {
-                        case "close", "setAutoCommit" -> {
+                        case "close", "commit" -> {
+                            return null;
+                        }
+                        case "setAutoCommit" -> {
+                            // Una transacción empieza con setAutoCommit(false): se marca desde aquí el rollback.
+                            if (!(Boolean) argumentos[0]) {
+                                puntoGuardado = real.setSavepoint();
+                            }
                             return null;
                         }
                         case "getAutoCommit" -> {
                             return false;
-                        }
-                        case "commit" -> {
-                            puntoGuardado = real.setSavepoint();
-                            return null;
                         }
                         case "rollback" -> {
                             real.rollback(puntoGuardado);
