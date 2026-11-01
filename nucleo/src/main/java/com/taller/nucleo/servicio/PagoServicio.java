@@ -9,6 +9,8 @@ import com.taller.nucleo.entidad.Presupuesto;
 import com.taller.nucleo.entidad.Usuario;
 import com.taller.nucleo.estado.Cancelada;
 import com.taller.nucleo.excepcion.ReglaNegocioException;
+import com.taller.nucleo.seguridad.Accion;
+import com.taller.nucleo.seguridad.Permisos;
 import com.taller.nucleo.util.Transaccion;
 
 import java.math.BigDecimal;
@@ -22,6 +24,7 @@ import java.sql.Connection;
 public final class PagoServicio {
 
     public Pago registrar(int idOrden, BigDecimal monto, MetodoPago metodo, Usuario usuario) {
+        Permisos.exigir(usuario, Accion.REGISTRAR_PAGO);
         return Transaccion.devolviendo(conexion -> {
             OrdenServicio orden = Consultas.orden(conexion, idOrden);
             Pago pago = new Pago(orden, usuario, monto, metodo);
@@ -33,7 +36,9 @@ public final class PagoServicio {
                 throw new ReglaNegocioException("El pago de " + pago.getMonto() + " supera el saldo pendiente de "
                         + saldo + " de la orden #" + idOrden + ".");
             }
-            return new PagoDaoJdbc(conexion).insertar(pago);
+            new PagoDaoJdbc(conexion).insertar(pago);
+            AuditoriaServicio.registrar(conexion, usuario, "REGISTRAR_PAGO", "pago", pago.getId());
+            return pago;
         });
     }
 

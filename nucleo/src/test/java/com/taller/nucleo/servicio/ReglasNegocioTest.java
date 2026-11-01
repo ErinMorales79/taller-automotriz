@@ -44,12 +44,14 @@ class ReglasNegocioTest extends BaseBD {
     private Datos datos;
     private Usuario recepcion;
     private Usuario admin;
+    private Usuario encargado;
 
     @BeforeEach
     void preparar() {
         datos = new Datos(conexion());
         recepcion = datos.usuario(Rol.RECEPCIONISTA);
         admin = datos.usuario(Rol.ADMINISTRADOR);
+        encargado = datos.usuario(Rol.ENCARGADO_INVENTARIO);
     }
 
     // ---------- ayudas ----------
@@ -63,7 +65,7 @@ class ReglasNegocioTest extends BaseBD {
         ordenes.iniciarDiagnostico(orden.getId(), recepcion);
         Presupuesto presupuesto = new Presupuesto(orden);
         presupuesto.agregarServicio(datos.servicio("50.00"), new BigDecimal("2"));
-        presupuestos.crear(presupuesto);
+        presupuestos.crear(presupuesto, recepcion);
         ordenes.enviarAAprobacion(orden.getId(), recepcion);
         return presupuesto;
     }
@@ -201,7 +203,7 @@ class ReglasNegocioTest extends BaseBD {
             ordenes.volverADiagnostico(orden.getId(), recepcion);
             Presupuesto segundo = new Presupuesto(orden);
             segundo.agregarServicio(datos.servicio("30.00"), BigDecimal.ONE);
-            presupuestos.crear(segundo);
+            presupuestos.crear(segundo, recepcion);
             assertEquals(2, new com.taller.nucleo.dao.jdbc.PresupuestoDaoJdbc(conexion())
                     .listarPorOrden(orden.getId()).size(), "El presupuesto rechazado se conserva");
         }
@@ -218,7 +220,7 @@ class ReglasNegocioTest extends BaseBD {
         void unPresupuestoVacioSeRechaza() {
             OrdenServicio orden = ordenNueva();
             ordenes.iniciarDiagnostico(orden.getId(), recepcion);
-            assertThrows(ReglaNegocioException.class, () -> presupuestos.crear(new Presupuesto(orden)));
+            assertThrows(ReglaNegocioException.class, () -> presupuestos.crear(new Presupuesto(orden), recepcion));
         }
     }
 
@@ -234,7 +236,7 @@ class ReglasNegocioTest extends BaseBD {
             Repuesto repuesto = datos.repuesto(10, "8.00");
             Presupuesto presupuesto = new Presupuesto(orden);
             presupuesto.agregarRepuesto(repuesto, 4);
-            presupuestos.crear(presupuesto);
+            presupuestos.crear(presupuesto, recepcion);
 
             assertEquals(10, stockDe(repuesto));
         }
@@ -244,7 +246,7 @@ class ReglasNegocioTest extends BaseBD {
             OrdenServicio orden = ordenEnReparacion();
             Repuesto repuesto = datos.repuesto(10, "8.00");
 
-            inventario.registrarConsumo(orden.getId(), repuesto.getId(), 4, recepcion);
+            inventario.registrarConsumo(orden.getId(), repuesto.getId(), 4, encargado);
 
             assertEquals(6, stockDe(repuesto));
             List<ConsumoRepuesto> consumos = new ConsumoRepuestoDaoJdbc(conexion()).listarPorOrden(orden.getId());
@@ -258,7 +260,7 @@ class ReglasNegocioTest extends BaseBD {
             Repuesto repuesto = datos.repuesto(3, "8.00");
 
             ReglaNegocioException error = assertThrows(ReglaNegocioException.class,
-                    () -> inventario.registrarConsumo(orden.getId(), repuesto.getId(), 5, recepcion));
+                    () -> inventario.registrarConsumo(orden.getId(), repuesto.getId(), 5, encargado));
             assertTrue(error.getMessage().contains("Stock insuficiente"));
             assertEquals(3, stockDe(repuesto));
             assertTrue(new ConsumoRepuestoDaoJdbc(conexion()).listarPorOrden(orden.getId()).isEmpty());
@@ -269,7 +271,7 @@ class ReglasNegocioTest extends BaseBD {
             OrdenServicio orden = ordenNueva();
             Repuesto repuesto = datos.repuesto(10, "8.00");
             assertThrows(ReglaNegocioException.class,
-                    () -> inventario.registrarConsumo(orden.getId(), repuesto.getId(), 1, recepcion));
+                    () -> inventario.registrarConsumo(orden.getId(), repuesto.getId(), 1, encargado));
             assertEquals(10, stockDe(repuesto));
         }
 
@@ -278,7 +280,7 @@ class ReglasNegocioTest extends BaseBD {
             OrdenServicio orden = ordenEnReparacion();
             Repuesto repuesto = datos.repuesto(10, "8.00");
             assertThrows(ReglaNegocioException.class,
-                    () -> inventario.registrarConsumo(orden.getId(), repuesto.getId(), 0, recepcion));
+                    () -> inventario.registrarConsumo(orden.getId(), repuesto.getId(), 0, encargado));
         }
 
         @Test

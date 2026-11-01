@@ -8,6 +8,8 @@ import com.taller.nucleo.entidad.Usuario;
 import com.taller.nucleo.estado.EnDiagnostico;
 import com.taller.nucleo.estado.EsperandoAprobacion;
 import com.taller.nucleo.excepcion.ReglaNegocioException;
+import com.taller.nucleo.seguridad.Accion;
+import com.taller.nucleo.seguridad.Permisos;
 import com.taller.nucleo.util.Transaccion;
 
 /**
@@ -17,7 +19,8 @@ import com.taller.nucleo.util.Transaccion;
 public final class PresupuestoServicio {
 
     /** Guarda el presupuesto con todos sus detalles en una sola transacción. */
-    public Presupuesto crear(Presupuesto presupuesto) {
+    public Presupuesto crear(Presupuesto presupuesto, Usuario responsable) {
+        Permisos.exigir(responsable, Accion.GESTIONAR_PRESUPUESTO);
         if (presupuesto.estaVacio()) {
             throw new ReglaNegocioException("El presupuesto debe tener al menos un servicio o un repuesto.");
         }
@@ -28,11 +31,14 @@ public final class PresupuestoServicio {
                 throw new ReglaNegocioException(
                         "Solo se puede crear un presupuesto mientras la orden está en diagnóstico.");
             }
-            return new PresupuestoDaoJdbc(conexion).insertar(presupuesto);
+            new PresupuestoDaoJdbc(conexion).insertar(presupuesto);
+            AuditoriaServicio.registrar(conexion, responsable, "CREAR_PRESUPUESTO", "presupuesto", presupuesto.getId());
+            return presupuesto;
         });
     }
 
     public Presupuesto aprobar(int idPresupuesto, Usuario responsable) {
+        Permisos.exigir(responsable, Accion.GESTIONAR_PRESUPUESTO);
         return Transaccion.devolviendo(conexion -> {
             PresupuestoDao dao = new PresupuestoDaoJdbc(conexion);
             Presupuesto presupuesto = Consultas.presupuesto(conexion, idPresupuesto);
@@ -42,16 +48,19 @@ public final class PresupuestoServicio {
             }
             presupuesto.aprobar(responsable);
             dao.actualizarEstado(presupuesto);
+            AuditoriaServicio.registrar(conexion, responsable, "APROBAR_PRESUPUESTO", "presupuesto", idPresupuesto);
             return presupuesto;
         });
     }
 
     public Presupuesto rechazar(int idPresupuesto, Usuario responsable) {
+        Permisos.exigir(responsable, Accion.GESTIONAR_PRESUPUESTO);
         return Transaccion.devolviendo(conexion -> {
             Presupuesto presupuesto = Consultas.presupuesto(conexion, idPresupuesto);
             exigirOrdenEsperando(presupuesto);
             presupuesto.rechazar(responsable);
             new PresupuestoDaoJdbc(conexion).actualizarEstado(presupuesto);
+            AuditoriaServicio.registrar(conexion, responsable, "RECHAZAR_PRESUPUESTO", "presupuesto", idPresupuesto);
             return presupuesto;
         });
     }

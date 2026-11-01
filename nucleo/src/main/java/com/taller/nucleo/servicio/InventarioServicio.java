@@ -11,6 +11,8 @@ import com.taller.nucleo.entidad.Repuesto;
 import com.taller.nucleo.entidad.Usuario;
 import com.taller.nucleo.estado.EnReparacion;
 import com.taller.nucleo.excepcion.ReglaNegocioException;
+import com.taller.nucleo.seguridad.Accion;
+import com.taller.nucleo.seguridad.Permisos;
 import com.taller.nucleo.util.Transaccion;
 
 /**
@@ -21,6 +23,7 @@ public final class InventarioServicio {
 
     /** Regla 3: descuenta el stock en el mismo momento en que registra el consumo. */
     public ConsumoRepuesto registrarConsumo(int idOrden, int idRepuesto, int cantidad, Usuario usuario) {
+        Permisos.exigir(usuario, Accion.REGISTRAR_CONSUMO);
         return Transaccion.devolviendo(conexion -> {
             OrdenServicio orden = Consultas.orden(conexion, idOrden);
             if (!(orden.getEstado() instanceof EnReparacion)) {
@@ -35,12 +38,15 @@ public final class InventarioServicio {
                 throw new ReglaNegocioException("Stock insuficiente de " + repuesto.getNombre()
                         + ": hay " + repuesto.getStock() + " y se piden " + cantidad + ".");
             }
-            return new ConsumoRepuestoDaoJdbc(conexion).insertar(consumo);
+            new ConsumoRepuestoDaoJdbc(conexion).insertar(consumo);
+            AuditoriaServicio.registrar(conexion, usuario, "CONSUMIR_REPUESTO", "consumo_repuesto", consumo.getId());
+            return consumo;
         });
     }
 
     /** Guarda la compra con sus detalles y suma las cantidades al stock, todo o nada. */
     public Compra registrarCompra(Compra compra) {
+        Permisos.exigir(compra.getUsuario(), Accion.GESTIONAR_INVENTARIO);
         if (compra.getDetalles().isEmpty()) {
             throw new ReglaNegocioException("La compra debe tener al menos un repuesto.");
         }
@@ -52,6 +58,7 @@ public final class InventarioServicio {
                     throw new ReglaNegocioException("No se pudo sumar el stock de " + detalle.repuesto().getNombre() + ".");
                 }
             }
+            AuditoriaServicio.registrar(conexion, compra.getUsuario(), "REGISTRAR_COMPRA", "compra", compra.getId());
             return compra;
         });
     }

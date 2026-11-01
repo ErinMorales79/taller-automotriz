@@ -13,8 +13,9 @@ import com.taller.nucleo.entidad.TipoAtencion;
 import com.taller.nucleo.entidad.Usuario;
 import com.taller.nucleo.entidad.Vehiculo;
 import com.taller.nucleo.excepcion.ReglaNegocioException;
+import com.taller.nucleo.seguridad.Accion;
+import com.taller.nucleo.seguridad.Permisos;
 import com.taller.nucleo.util.Transaccion;
-import com.taller.nucleo.util.Validar;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -40,6 +41,7 @@ public final class OrdenServicioServicio {
      */
     public OrdenServicio crear(Vehiculo vehiculo, TipoAtencion tipoAtencion, Prioridad prioridad,
                                Usuario registra, Usuario autorizaDuplicada) {
+        Permisos.exigir(registra, Accion.CREAR_ORDEN);
         OrdenServicio orden = new OrdenServicio(vehiculo, tipoAtencion, prioridad, registra);
         int idVehiculo = Consultas.idGuardado(vehiculo.getId(), "el vehículo");
         int idTipo = Consultas.idGuardado(tipoAtencion.getId(), "el tipo de atención");
@@ -53,6 +55,10 @@ public final class OrdenServicioServicio {
                 orden.autorizarDuplicada(autorizaDuplicada);
             }
             ordenes.insertar(orden);
+            AuditoriaServicio.registrar(conexion, registra, "CREAR_ORDEN", "orden_servicio", orden.getId());
+            if (orden.getAutorizaDuplicada() != null) {
+                AuditoriaServicio.registrar(conexion, autorizaDuplicada, "AUTORIZAR_DUPLICADA", "orden_servicio", orden.getId());
+            }
             new HistorialEstadoOrdenDaoJdbc(conexion).insertar(
                     new HistorialEstadoOrden(orden, null, orden.getEstado().getNombre(), registra));
             return orden;
@@ -109,6 +115,7 @@ public final class OrdenServicioServicio {
 
     /** Solo un administrador puede autorizar que se entregue con saldo pendiente. */
     public OrdenServicio autorizarCredito(int idOrden, Usuario administrador) {
+        Permisos.exigir(administrador, Accion.AUTORIZAR_EXCEPCIONES);
         return Transaccion.devolviendo(conexion -> {
             OrdenServicio orden = Consultas.orden(conexion, idOrden);
             if (!orden.estaActiva()) {
@@ -116,6 +123,7 @@ public final class OrdenServicioServicio {
             }
             orden.autorizarCredito(administrador);
             new OrdenServicioDaoJdbc(conexion).actualizar(orden);
+            AuditoriaServicio.registrar(conexion, administrador, "AUTORIZAR_CREDITO", "orden_servicio", idOrden);
             return orden;
         });
     }
@@ -134,7 +142,7 @@ public final class OrdenServicioServicio {
      */
     private OrdenServicio cambiar(int idOrden, Usuario responsable, Consumer<OrdenServicio> transicion,
                                   Verificacion verificacion) {
-        Validar.obligatorio(responsable, "responsable");
+        Permisos.exigir(responsable, Accion.GESTIONAR_ORDEN);
         return Transaccion.devolviendo(conexion -> {
             OrdenServicioDao ordenes = new OrdenServicioDaoJdbc(conexion);
             OrdenServicio orden = Consultas.orden(conexion, idOrden);
@@ -146,6 +154,8 @@ public final class OrdenServicioServicio {
             ordenes.actualizar(orden);
             new HistorialEstadoOrdenDaoJdbc(conexion).insertar(
                     new HistorialEstadoOrden(orden, anterior, orden.getEstado().getNombre(), responsable));
+            AuditoriaServicio.registrar(conexion, responsable, "ORDEN_" + orden.getEstado().getNombre(),
+                    "orden_servicio", orden.getId());
             return orden;
         });
     }
