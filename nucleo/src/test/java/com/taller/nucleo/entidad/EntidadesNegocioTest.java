@@ -70,9 +70,7 @@ class EntidadesNegocioTest {
         asignacion.actualizarAvance(100);
         assertEquals(EstadoTarea.TERMINADA, asignacion.getEstadoTarea());
         assertThrows(ReglaNegocioException.class, () -> asignacion.actualizarAvance(101));
-
-        tecnico.setActivo(false);
-        assertThrows(ReglaNegocioException.class, () -> new Asignacion(orden(), tecnico));
+        assertThrows(ReglaNegocioException.class, () -> new Asignacion(orden(), null));
     }
 
     @Test

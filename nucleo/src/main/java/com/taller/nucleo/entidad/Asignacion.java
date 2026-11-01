@@ -18,9 +18,6 @@ public final class Asignacion {
     public Asignacion(OrdenServicio orden, Tecnico tecnico) {
         this.orden = Validar.obligatorio(orden, "orden");
         this.tecnico = Validar.obligatorio(tecnico, "técnico");
-        if (!tecnico.isActivo()) {
-            throw new ReglaNegocioException("El técnico " + tecnico.getNombre() + " no está activo.");
-        }
     }
 
     /** El avance y el estado de la tarea se mantienen coherentes entre sí. */
