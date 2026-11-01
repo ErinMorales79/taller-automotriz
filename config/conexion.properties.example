@@ -1,0 +1,3 @@
+url=jdbc:mysql://localhost:3306/taller_automotriz?useSSL=false&serverTimezone=UTC
+usuario=usuario_ficticio
+contrasena=cambiar_esta_contrasena

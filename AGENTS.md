@@ -6,7 +6,7 @@ Sistema para un taller automotriz que recibe vehículos, diagnostica averías,
 asigna técnicos y consume repuestos. Resuelve dos problemas: aprobaciones de
 presupuestos que se pierden y cobros de servicios que no se ejecutaron.
 
-Proyecto universitario desarrollado por Daniel con Claude. Se apunta directo a
+Proyecto universitario desarrollado por Inge con Claude. Se apunta directo a
 la versión final: persistencia real con MySQL, JDBC y DAO desde el inicio.
 
 El enunciado completo (lineamientos, reglas, reportes, entregables y casos de
@@ -128,7 +128,7 @@ Patrones obligatorios:
 
 - Autenticación con usuario y contraseña, y control de permisos por rol.
 - Roles: `ADMINISTRADOR`, `RECEPCIONISTA`, `TECNICO` y `ENCARGADO_INVENTARIO`
-  (ver "Decisiones aprobadas"). Cualquier cambio de roles se consulta a Daniel.
+  (ver "Decisiones aprobadas"). Cualquier cambio de roles se consulta a Inge.
 - Contraseñas guardadas con hash BCrypt. Nunca en texto plano.
 - La API se autentica con tokens JWT.
 - Validar todas las entradas del usuario antes de procesarlas.
@@ -151,7 +151,7 @@ Patrones obligatorios:
 | FlatLaf           | Apariencia moderna de Swing        |
 | JUnit 5           | Pruebas internas                   |
 
-No agregar ninguna librería fuera de esta lista sin aprobación de Daniel.
+No agregar ninguna librería fuera de esta lista sin aprobación de Inge.
 
 ## Reportes obligatorios
 
@@ -199,17 +199,17 @@ Una tarea está terminada cuando:
 1. Compila sin errores ni advertencias nuevas.
 2. Sus pruebas pasan.
 3. Las reglas de negocio afectadas se validan en el servicio.
-4. Se explicó a Daniel qué se hizo y por qué.
+4. Se explicó a Inge qué se hizo y por qué.
 
-## Forma de trabajar con Daniel
+## Forma de trabajar con Inge
 
 - Responder siempre en español, con palabras simples. Usar términos técnicos solo
   cuando sean necesarios.
 - Antes de implementar algo grande, proponer el plan y esperar aprobación.
 - Después de cada cambio importante, explicar en el chat qué se hizo y por qué.
-  Daniel defenderá el proyecto y necesita entender cada parte.
+  Inge defenderá el proyecto y necesita entender cada parte.
 - Las explicaciones van en el chat, no dentro de los archivos del proyecto.
-- No generar diagramas a menos que Daniel los pida.
+- No generar diagramas a menos que Inge los pida.
 
 ## Cuándo preguntar antes de actuar
 
