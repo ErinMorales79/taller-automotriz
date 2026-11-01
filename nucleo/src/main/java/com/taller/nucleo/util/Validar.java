@@ -2,6 +2,9 @@ package com.taller.nucleo.util;
 
 import com.taller.nucleo.excepcion.ReglaNegocioException;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /** Validaciones de entrada compartidas por las entidades. */
 public final class Validar {
 
@@ -36,6 +39,30 @@ public final class Validar {
             throw new ReglaNegocioException("El campo " + campo + " es obligatorio.");
         }
         return valor;
+    }
+
+    public static int enteroPositivo(int valor, String campo) {
+        if (valor <= 0) {
+            throw new ReglaNegocioException("El campo " + campo + " debe ser mayor que cero.");
+        }
+        return valor;
+    }
+
+    /** Acepta cero. Devuelve el monto con dos decimales. */
+    public static BigDecimal montoNoNegativo(BigDecimal valor, String campo) {
+        obligatorio(valor, campo);
+        if (valor.signum() < 0) {
+            throw new ReglaNegocioException("El campo " + campo + " no puede ser negativo.");
+        }
+        return valor.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public static BigDecimal montoPositivo(BigDecimal valor, String campo) {
+        obligatorio(valor, campo);
+        if (valor.signum() <= 0) {
+            throw new ReglaNegocioException("El campo " + campo + " debe ser mayor que cero.");
+        }
+        return valor.setScale(2, RoundingMode.HALF_UP);
     }
 
     private static String limitar(String texto, String campo, int maximo) {

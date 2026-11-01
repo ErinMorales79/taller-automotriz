@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 /**
  * Entrega conexiones a MySQL. Los datos de acceso se leen de config/conexion.properties,
@@ -19,11 +20,21 @@ public final class ConexionBD {
 
     private static final String ARCHIVO = "config/conexion.properties";
 
+    private static Supplier<Connection> proveedor;
+
     private ConexionBD() {
+    }
+
+    /** Solo para pruebas: reemplaza el origen de conexiones. Con null se restablece el original. */
+    public static void fijarProveedor(Supplier<Connection> nuevo) {
+        proveedor = nuevo;
     }
 
     /** Quien llama es responsable de cerrar la conexión (try-with-resources). */
     public static Connection obtener() {
+        if (proveedor != null) {
+            return proveedor.get();
+        }
         Properties datos = cargarDatos();
         try {
             return DriverManager.getConnection(
