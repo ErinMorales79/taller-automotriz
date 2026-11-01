@@ -47,9 +47,16 @@ public final class ConexionBD {
     }
 
     /** Las pruebas apuntan a otra base con -Dtaller.bd.nombre=...; en uso normal no hay cambio. */
-    private static String urlFinal(String url) {
-        String base = System.getProperty("taller.bd.nombre");
-        return base == null || url == null ? url : url.replaceFirst("/[^/?]+(\\?|$)", "/" + base + "$1");
+    static String urlFinal(String url) {
+        return urlFinal(url, System.getProperty("taller.bd.nombre"));
+    }
+
+    /** Solo reemplaza el nombre de la base; si la URL no trae uno, la deja intacta. */
+    static String urlFinal(String url, String base) {
+        if (base == null || url == null) {
+            return url;
+        }
+        return url.replaceFirst("^(jdbc:mysql://[^/?]+/)[^/?]+", "$1" + java.util.regex.Matcher.quoteReplacement(base));
     }
 
     // shortcut: busca el archivo solo en la carpeta actual y en la superior; suficiente

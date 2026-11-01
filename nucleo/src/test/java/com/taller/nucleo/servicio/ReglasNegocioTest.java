@@ -355,6 +355,23 @@ class ReglasNegocioTest extends BaseBD {
         }
 
         @Test
+        void elCreditoAutorizadoSobreviveAlRecargarLaOrdenYPermiteEntregar() {
+            OrdenServicio orden = ordenFinalizada();
+            assertTrue(!new OrdenServicioDaoJdbc(conexion()).buscarPorId(orden.getId()).orElseThrow()
+                    .tieneCreditoAutorizado());
+
+            ordenes.autorizarCredito(orden.getId(), admin);
+
+            OrdenServicio recargada = new OrdenServicioDaoJdbc(conexion()).buscarPorId(orden.getId()).orElseThrow();
+            assertTrue(recargada.tieneCreditoAutorizado());
+            assertEquals(admin.getId(), recargada.getAutorizaCredito().getId());
+            assertEquals(new BigDecimal("100.00"), pagos.saldo(orden.getId()), "El saldo sigue pendiente");
+
+            ordenes.entregar(orden.getId(), recepcion);
+            assertEquals("ENTREGADA", estadoGuardado(orden));
+        }
+
+        @Test
         void unRecepcionistaNoPuedeAutorizarElCredito() {
             OrdenServicio orden = ordenFinalizada();
             assertThrows(ReglaNegocioException.class, () -> ordenes.autorizarCredito(orden.getId(), recepcion));

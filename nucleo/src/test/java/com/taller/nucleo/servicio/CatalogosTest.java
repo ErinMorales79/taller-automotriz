@@ -106,6 +106,22 @@ class CatalogosTest extends BaseBD {
     }
 
     @Test
+    void cambiarRolQuedaAuditadoYUnCambioFallidoDejaAlUsuarioIgual() {
+        UsuarioServicio usuarios = new UsuarioServicio();
+        usuarios.cambiarRol(admin, encargado.getId(), Rol.RECEPCIONISTA, null);
+        assertTrue(new AuditoriaDaoJdbc(conexion()).listarPorUsuario(admin.getId()).stream()
+                .anyMatch(a -> a.getAccion().equals("CAMBIAR_ROL") && encargado.getId().equals(a.getIdRegistro())));
+
+        assertThrows(ReglaNegocioException.class,
+                () -> usuarios.cambiarRol(admin, encargado.getId(), Rol.TECNICO, null));
+        var guardado = new com.taller.nucleo.dao.jdbc.UsuarioDaoJdbc(conexion()).buscarPorId(encargado.getId()).orElseThrow();
+        assertEquals(Rol.RECEPCIONISTA, guardado.getRol());
+        assertEquals(null, guardado.getTecnico());
+        assertEquals(1, new AuditoriaDaoJdbc(conexion()).listarPorUsuario(admin.getId()).stream()
+                .filter(a -> a.getAccion().equals("CAMBIAR_ROL")).count(), "El intento fallido no se audita");
+    }
+
+    @Test
     void elAdministradorCambiaElRolDeOtroUsuarioPeroNoElSuyo() {
         UsuarioServicio usuarios = new UsuarioServicio();
         Tecnico tecnico = datos.tecnico();
