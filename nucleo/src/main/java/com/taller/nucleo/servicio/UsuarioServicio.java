@@ -56,6 +56,23 @@ public final class UsuarioServicio {
         });
     }
 
+    /** Solo un administrador cambia roles, y nunca el suyo propio (evita quedarse sin administradores). */
+    public Usuario cambiarRol(Usuario administrador, int idUsuario, Rol nuevoRol, Tecnico tecnico) {
+        Permisos.exigir(administrador, Accion.GESTIONAR_USUARIOS);
+        if (administrador.getId() != null && administrador.getId() == idUsuario) {
+            throw new ReglaNegocioException("No puede cambiar su propio rol.");
+        }
+        return Transaccion.devolviendo(conexion -> {
+            UsuarioDao usuarios = new UsuarioDaoJdbc(conexion);
+            Usuario objetivo = usuarios.buscarPorId(idUsuario)
+                    .orElseThrow(() -> new ReglaNegocioException("El usuario #" + idUsuario + " no existe."));
+            objetivo.asignarRol(nuevoRol, tecnico);
+            usuarios.actualizar(objetivo);
+            AuditoriaServicio.registrar(conexion, administrador, "CAMBIAR_ROL", "usuario", idUsuario);
+            return objetivo;
+        });
+    }
+
     /** Un usuario desactivado ya no puede iniciar sesión ni operar. Nadie se desactiva a sí mismo. */
     public void desactivar(Usuario administrador, int idUsuario) {
         Permisos.exigir(administrador, Accion.GESTIONAR_USUARIOS);

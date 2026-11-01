@@ -51,6 +51,16 @@ public final class Usuario {
         return rol;
     }
 
+    /** Cambia el rol manteniendo la regla del esquema: solo un TECNICO se vincula a un técnico. */
+    public void asignarRol(Rol nuevoRol, Tecnico nuevoTecnico) {
+        Validar.obligatorio(nuevoRol, "rol");
+        if (nuevoRol == Rol.TECNICO && nuevoTecnico == null) {
+            throw new ReglaNegocioException("Un usuario con rol TECNICO debe vincularse a un técnico.");
+        }
+        this.rol = nuevoRol;
+        this.tecnico = nuevoRol == Rol.TECNICO ? nuevoTecnico : null;
+    }
+
     public boolean isActivo() {
         return activo;
     }
