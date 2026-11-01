@@ -78,3 +78,21 @@ y aplicar `database/esquema.sql` ahí. Después se cambiaría la URL en las prue
    `nucleo/build.gradle`); `BaseBD` se niega a correr sobre una base que no termine en `_test`.
 5. Se agregó `.gitattributes`. El remoto `origin` sigue apuntando al nombre viejo del repositorio
    (el cambio de URL quedó pendiente de tu autorización).
+
+---
+
+## Fase 5: interpretaciones de los reportes (para tu visto bueno)
+
+- **Ingresos por servicio:** solo cuenta servicios de presupuestos `APROBADO` cuya orden está
+  `FINALIZADA` o `ENTREGADA` (lo ejecutado), no lo presupuestado. Coherente con "no cobrar servicios
+  que no se ejecutaron". Es ingreso facturable, no dinero ya cobrado.
+- **Antigüedad de órdenes:** días desde el ingreso hasta la entrega (entregadas), hasta el último
+  cambio de estado (canceladas) o hasta hoy (el resto).
+- **Rangos de fechas:** se filtran por fecha de ingreso de la orden (reportes 1 y 4), de asignación
+  (reporte 2) y de consumo (reporte 3). El reporte 5 no usa rango: lista todo el historial.
+- **Quién los ve:** `ADMINISTRADOR`, `RECEPCIONISTA` y `ENCARGADO_INVENTARIO` (los técnicos no).
+- **Librerías:** se usaron OpenPDF 2.0.3 y Apache POI 5.3.0 (ya estaban en la lista aprobada; las
+  versiones las elegí yo).
+- **Datos de prueba:** `database/datos_prueba.sql` se carga una sola vez sobre la base vacía. Las
+  pruebas de `DatosPruebaTest` y varias de reportes asumen `taller_automotriz_test` vacía: no cargues
+  datos ahí.

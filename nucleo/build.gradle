@@ -6,4 +6,6 @@ tasks.named('test') {
 dependencies {
     implementation 'com.mysql:mysql-connector-j:9.1.0'
     implementation 'org.mindrot:jbcrypt:0.4'
+    implementation 'com.github.librepdf:openpdf:2.0.3'
+    implementation 'org.apache.poi:poi-ooxml:5.3.0'
 }
