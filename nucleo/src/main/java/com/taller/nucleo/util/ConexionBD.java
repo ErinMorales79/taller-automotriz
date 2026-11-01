@@ -38,12 +38,18 @@ public final class ConexionBD {
         Properties datos = cargarDatos();
         try {
             return DriverManager.getConnection(
-                    datos.getProperty("url"),
+                    urlFinal(datos.getProperty("url")),
                     datos.getProperty("usuario"),
                     datos.getProperty("contrasena"));
         } catch (SQLException e) {
             throw new PersistenciaException("No se pudo conectar con la base de datos.", e);
         }
+    }
+
+    /** Las pruebas apuntan a otra base con -Dtaller.bd.nombre=...; en uso normal no hay cambio. */
+    private static String urlFinal(String url) {
+        String base = System.getProperty("taller.bd.nombre");
+        return base == null || url == null ? url : url.replaceFirst("/[^/?]+(\\?|$)", "/" + base + "$1");
     }
 
     // shortcut: busca el archivo solo en la carpeta actual y en la superior; suficiente

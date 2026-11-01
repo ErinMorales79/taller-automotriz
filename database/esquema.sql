@@ -71,7 +71,6 @@ CREATE TABLE orden_servicio (
                           'EN_REPARACION', 'FINALIZADA', 'ENTREGADA', 'CANCELADA')),
     fecha_ingreso DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fecha_entrega DATETIME,
-    credito_autorizado BOOLEAN NOT NULL DEFAULT FALSE,
     id_usuario_registro INT NOT NULL,
     id_usuario_autoriza_duplicada INT,
     id_usuario_autoriza_credito INT,

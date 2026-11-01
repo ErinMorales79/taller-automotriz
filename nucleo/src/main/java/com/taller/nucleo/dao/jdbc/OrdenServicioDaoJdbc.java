@@ -69,12 +69,12 @@ public final class OrdenServicioDaoJdbc implements OrdenServicioDao {
     public OrdenServicio insertar(OrdenServicio orden) {
         orden.setId(Jdbc.insertar(conexion,
                 "INSERT INTO orden_servicio (id_vehiculo, id_tipo_atencion, prioridad, estado, fecha_ingreso, "
-                        + "fecha_entrega, credito_autorizado, id_usuario_registro, "
+                        + "fecha_entrega, id_usuario_registro, "
                         + "id_usuario_autoriza_duplicada, id_usuario_autoriza_credito) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 orden.getVehiculo().getId(), orden.getTipoAtencion().getId(), orden.getPrioridad(),
                 orden.getEstado().getNombre(), orden.getFechaIngreso(), orden.getFechaEntrega(),
-                orden.tieneCreditoAutorizado(), orden.getUsuarioRegistro().getId(),
+                orden.getUsuarioRegistro().getId(),
                 idDe(orden.getAutorizaDuplicada()), idDe(orden.getAutorizaCredito())));
         return orden;
     }
@@ -82,11 +82,10 @@ public final class OrdenServicioDaoJdbc implements OrdenServicioDao {
     @Override
     public void actualizar(OrdenServicio orden) {
         Jdbc.ejecutarExigiendoFila(conexion,
-                "UPDATE orden_servicio SET prioridad = ?, estado = ?, fecha_entrega = ?, credito_autorizado = ?, "
+                "UPDATE orden_servicio SET prioridad = ?, estado = ?, fecha_entrega = ?, "
                         + "id_usuario_autoriza_duplicada = ?, id_usuario_autoriza_credito = ? WHERE id = ?",
                 orden.getPrioridad(), orden.getEstado().getNombre(), orden.getFechaEntrega(),
-                orden.tieneCreditoAutorizado(), idDe(orden.getAutorizaDuplicada()),
-                idDe(orden.getAutorizaCredito()), orden.getId());
+                idDe(orden.getAutorizaDuplicada()), idDe(orden.getAutorizaCredito()), orden.getId());
     }
 
     @Override

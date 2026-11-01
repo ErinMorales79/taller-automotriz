@@ -1,3 +1,8 @@
+tasks.named('test') {
+    // Las pruebas nunca tocan la base real: usan taller_automotriz_test.
+    systemProperty 'taller.bd.nombre', 'taller_automotriz_test'
+}
+
 dependencies {
     implementation 'com.mysql:mysql-connector-j:9.1.0'
     implementation 'org.mindrot:jbcrypt:0.4'

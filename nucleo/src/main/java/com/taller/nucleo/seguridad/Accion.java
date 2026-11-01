@@ -6,6 +6,8 @@ public enum Accion {
     GESTIONAR_CLIENTES_Y_VEHICULOS("gestionar clientes y vehículos"),
     CREAR_ORDEN("crear órdenes de servicio"),
     GESTIONAR_ORDEN("cambiar el estado de las órdenes"),
+    FINALIZAR_ORDEN("finalizar órdenes"),
+    GESTIONAR_CATALOGOS("gestionar técnicos, servicios y tipos de atención"),
     GESTIONAR_PRESUPUESTO("crear y resolver presupuestos"),
     ASIGNAR_TECNICOS("asignar técnicos"),
     ACTUALIZAR_AVANCE("actualizar el avance de tareas"),

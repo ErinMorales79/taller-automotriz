@@ -93,6 +93,19 @@ class ReglasNegocioTest extends BaseBD {
         return new RepuestoDaoJdbc(conexion()).buscarPorId(repuesto.getId()).orElseThrow().getStock();
     }
 
+    @Test
+    void elTecnicoPuedeFinalizarUnaOrdenPeroElEncargadoDeInventarioNo() {
+        OrdenServicio orden = ordenEnReparacion();
+        Usuario tecnico = datos.usuario(Rol.TECNICO);
+
+        assertThrows(com.taller.nucleo.excepcion.AccesoDenegadoException.class,
+                () -> ordenes.finalizar(orden.getId(), encargado));
+        ordenes.finalizar(orden.getId(), tecnico);
+        assertEquals("FINALIZADA", estadoGuardado(orden));
+        assertThrows(com.taller.nucleo.excepcion.AccesoDenegadoException.class,
+                () -> ordenes.entregar(orden.getId(), tecnico));
+    }
+
     // ---------- Regla 1: no dos órdenes activas del mismo tipo sin autorización ----------
 
     @Nested

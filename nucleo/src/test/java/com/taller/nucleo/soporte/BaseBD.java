@@ -27,6 +27,10 @@ public abstract class BaseBD {
     @BeforeEach
     void abrirConexionDePrueba() throws SQLException {
         real = ConexionBD.obtener();
+        if (!real.getCatalog().endsWith("_test")) {
+            real.close();
+            throw new IllegalStateException("Las pruebas solo pueden correr sobre una base *_test, no sobre " + real.getCatalog());
+        }
         real.setAutoCommit(false);
         puntoGuardado = real.setSavepoint();
         ConexionBD.fijarProveedor(this::envolver);

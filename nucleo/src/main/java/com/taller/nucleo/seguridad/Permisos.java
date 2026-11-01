@@ -21,9 +21,10 @@ public final class Permisos {
     static {
         POR_ROL.put(Rol.ADMINISTRADOR, EnumSet.allOf(Accion.class));
         POR_ROL.put(Rol.RECEPCIONISTA, EnumSet.of(Accion.GESTIONAR_CLIENTES_Y_VEHICULOS, Accion.CREAR_ORDEN,
-                Accion.GESTIONAR_ORDEN, Accion.GESTIONAR_PRESUPUESTO, Accion.ASIGNAR_TECNICOS,
+                Accion.GESTIONAR_ORDEN, Accion.FINALIZAR_ORDEN, Accion.GESTIONAR_PRESUPUESTO, Accion.ASIGNAR_TECNICOS,
                 Accion.REGISTRAR_PAGO, Accion.VER_REPORTES));
-        POR_ROL.put(Rol.TECNICO, EnumSet.of(Accion.ACTUALIZAR_AVANCE, Accion.REGISTRAR_CONSUMO));
+        POR_ROL.put(Rol.TECNICO, EnumSet.of(Accion.ACTUALIZAR_AVANCE, Accion.REGISTRAR_CONSUMO,
+                Accion.FINALIZAR_ORDEN));
         POR_ROL.put(Rol.ENCARGADO_INVENTARIO, EnumSet.of(Accion.GESTIONAR_INVENTARIO,
                 Accion.REGISTRAR_CONSUMO, Accion.VER_REPORTES));
     }

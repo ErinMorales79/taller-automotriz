@@ -66,11 +66,11 @@ public final class OrdenServicioServicio {
     }
 
     public OrdenServicio iniciarDiagnostico(int idOrden, Usuario responsable) {
-        return cambiar(idOrden, responsable, OrdenServicio::iniciarDiagnostico, null);
+        return cambiar(idOrden, responsable, Accion.GESTIONAR_ORDEN, OrdenServicio::iniciarDiagnostico, null);
     }
 
     public OrdenServicio enviarAAprobacion(int idOrden, Usuario responsable) {
-        return cambiar(idOrden, responsable, OrdenServicio::enviarAAprobacion, (conexion, orden) -> {
+        return cambiar(idOrden, responsable, Accion.GESTIONAR_ORDEN, OrdenServicio::enviarAAprobacion, (conexion, orden) -> {
             boolean hayPendiente = new PresupuestoDaoJdbc(conexion).listarPorOrden(orden.getId()).stream()
                     .anyMatch(p -> p.getEstado() == EstadoPresupuesto.PENDIENTE);
             if (!hayPendiente) {
@@ -81,12 +81,12 @@ public final class OrdenServicioServicio {
     }
 
     public OrdenServicio volverADiagnostico(int idOrden, Usuario responsable) {
-        return cambiar(idOrden, responsable, OrdenServicio::volverADiagnostico, null);
+        return cambiar(idOrden, responsable, Accion.GESTIONAR_ORDEN, OrdenServicio::volverADiagnostico, null);
     }
 
     /** Regla 2: no se inicia la reparación sin un presupuesto aprobado. */
     public OrdenServicio iniciarReparacion(int idOrden, Usuario responsable) {
-        return cambiar(idOrden, responsable, OrdenServicio::iniciarReparacion, (conexion, orden) -> {
+        return cambiar(idOrden, responsable, Accion.GESTIONAR_ORDEN, OrdenServicio::iniciarReparacion, (conexion, orden) -> {
             if (new PresupuestoDaoJdbc(conexion).buscarAprobadoDeOrden(orden.getId()).isEmpty()) {
                 throw new ReglaNegocioException(
                         "No se puede iniciar la reparación: la orden no tiene un presupuesto aprobado.");
@@ -95,12 +95,12 @@ public final class OrdenServicioServicio {
     }
 
     public OrdenServicio finalizar(int idOrden, Usuario responsable) {
-        return cambiar(idOrden, responsable, OrdenServicio::finalizar, null);
+        return cambiar(idOrden, responsable, Accion.FINALIZAR_ORDEN, OrdenServicio::finalizar, null);
     }
 
     /** Regla 4: además de estar finalizada, la orden necesita saldo cero o crédito autorizado. */
     public OrdenServicio entregar(int idOrden, Usuario responsable) {
-        return cambiar(idOrden, responsable, OrdenServicio::entregar, (conexion, orden) -> {
+        return cambiar(idOrden, responsable, Accion.GESTIONAR_ORDEN, OrdenServicio::entregar, (conexion, orden) -> {
             BigDecimal saldo = PagoServicio.saldo(conexion, orden.getId());
             if (saldo.signum() > 0 && !orden.tieneCreditoAutorizado()) {
                 throw new ReglaNegocioException("No se puede entregar el vehículo: la orden tiene un saldo pendiente de "
@@ -110,7 +110,7 @@ public final class OrdenServicioServicio {
     }
 
     public OrdenServicio cancelar(int idOrden, Usuario responsable) {
-        return cambiar(idOrden, responsable, OrdenServicio::cancelar, null);
+        return cambiar(idOrden, responsable, Accion.GESTIONAR_ORDEN, OrdenServicio::cancelar, null);
     }
 
     /** Solo un administrador puede autorizar que se entregue con saldo pendiente. */
@@ -140,9 +140,9 @@ public final class OrdenServicioServicio {
      * Aplica una transición y la guarda con su registro en el historial (regla 5), todo en una
      * transacción: si algo falla, ni el estado ni el historial cambian.
      */
-    private OrdenServicio cambiar(int idOrden, Usuario responsable, Consumer<OrdenServicio> transicion,
+    private OrdenServicio cambiar(int idOrden, Usuario responsable, Accion accion, Consumer<OrdenServicio> transicion,
                                   Verificacion verificacion) {
-        Permisos.exigir(responsable, Accion.GESTIONAR_ORDEN);
+        Permisos.exigir(responsable, accion);
         return Transaccion.devolviendo(conexion -> {
             OrdenServicioDao ordenes = new OrdenServicioDaoJdbc(conexion);
             OrdenServicio orden = Consultas.orden(conexion, idOrden);
