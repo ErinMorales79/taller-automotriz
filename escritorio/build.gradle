@@ -2,11 +2,32 @@ plugins {
     id 'application'
 }
 
+evaluationDependsOn(':nucleo')
+
 dependencies {
     implementation project(':nucleo')
     implementation 'com.formdev:flatlaf:3.5.4'
+    implementation 'com.formdev:flatlaf-extras:3.5.4'
+
+    // Las pruebas de pantallas reutilizan la base de pruebas con rollback de nucleo.
+    testImplementation project(':nucleo').sourceSets.test.output
 }
 
 application {
     mainClass = 'com.taller.escritorio.Principal'
+}
+
+tasks.named('test') {
+    systemProperty 'taller.bd.nombre', 'taller_automotriz_test'
+    systemProperty 'java.awt.headless', 'true'
+    // Opcional: ./gradlew :escritorio:test -Dtaller.capturas=carpeta guarda una imagen de cada pantalla.
+    if (System.getProperty('taller.capturas')) {
+        systemProperty 'taller.capturas', System.getProperty('taller.capturas')
+    }
+}
+
+// Los componentes Swing son Serializable por herencia; sus avisos de serialVersionUID y de
+// "this escape" no aportan nada en una aplicación de escritorio, así que solo se apagan aquí.
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['-Xlint:-serial', '-Xlint:-this-escape']
 }

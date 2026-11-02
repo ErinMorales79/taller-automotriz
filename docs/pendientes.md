@@ -96,3 +96,30 @@ y aplicar `database/esquema.sql` ahí. Después se cambiaría la URL en las prue
 - **Datos de prueba:** `database/datos_prueba.sql` se carga una sola vez sobre la base vacía. Las
   pruebas de `DatosPruebaTest` y varias de reportes asumen `taller_automotriz_test` vacía: no cargues
   datos ahí.
+R//tiene mi visto bueno
+---
+
+## Fase 6: escritorio (para tu visto bueno)
+
+- **Librería nueva aprobada por ti:** `flatlaf-extras` 3.5.4 (iconos SVG). Los iconos están en
+  `escritorio/src/main/resources/iconos/` y los dibujé yo (estilo de trazo simple).
+- **Cambios en `nucleo` (sin tocar el modelo de datos):** `ConsultaServicio` (consultas de solo lectura
+  para que la interfaz no use los DAO) y `DiagnosticoServicio`. Este último es una **regla nueva que
+  interpreté yo**: un diagnóstico solo se registra mientras la orden está `EN_DIAGNOSTICO` y lo puede
+  registrar quien tenga `GESTIONAR_ORDEN` (admin y recepción). Antes no había forma de crear diagnósticos.
+- **Autorización de excepciones (reglas 1 y 4):** si quien trabaja no es administrador, el sistema pide
+  usuario y contraseña de un administrador en una ventana; si ya es administrador, solo confirma.
+- **Menú por rol:** cada rol ve solo sus módulos. Marcas y modelos van dentro de "Vehículos" (permiso de
+  recepción); técnicos, servicios y tipos de atención en "Catálogos" (solo admin); proveedores y compras
+  dentro de "Inventario".
+- **Cambiar contraseña propia:** botón con candado en el menú lateral (cualquier rol).
+- **Riesgo conocido (ya existía en `nucleo`):** `RepuestoDaoJdbc.actualizar` escribe también el stock. La
+  pantalla de repuestos no deja editarlo (se muestra de solo lectura), pero si dos personas editan el mismo
+  repuesto a la vez, una edición podría pisar un cambio de stock reciente. Se arregla quitando `stock` del
+  `UPDATE` en una próxima fase; no lo cambié sin consultarte.
+- **Avisos del compilador:** en `escritorio` se apagaron solo `-Xlint:-serial` y `-Xlint:-this-escape`
+  porque todo componente Swing es `Serializable` y genera avisos que no aplican.
+- **Pruebas de pantallas:** `PantallasTest` carga `datos_prueba.sql` dentro de la transacción de la prueba
+  (se revierte), igual que `DatosPruebaTest`: la base de pruebas debe estar vacía. Con
+  `./gradlew :escritorio:test -Dtaller.capturas=<carpeta>` guarda una imagen de cada pantalla
+- R//tiene mi visto bueno
