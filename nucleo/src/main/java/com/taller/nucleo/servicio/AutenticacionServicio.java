@@ -32,6 +32,13 @@ public final class AutenticacionServicio {
         return autenticado.orElseThrow(() -> new AccesoDenegadoException(MENSAJE_INVALIDO));
     }
 
+    /** Para validar una sesión ya abierta (token de la API): el usuario debe seguir existiendo y activo. */
+    public Usuario usuarioActivo(int idUsuario) {
+        return Transaccion.devolviendo(conexion -> new UsuarioDaoJdbc(conexion).buscarPorId(idUsuario))
+                .filter(Usuario::isActivo)
+                .orElseThrow(() -> new AccesoDenegadoException("La sesión ya no es válida. Inicia sesión de nuevo."));
+    }
+
     private static boolean coincide(String contrasena, String hash) {
         if (contrasena == null || contrasena.isEmpty()) {
             return false;

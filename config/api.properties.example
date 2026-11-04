@@ -1,0 +1,7 @@
+# Copia este archivo como config/api.properties y cambia los valores. No lo subas a Git.
+# Secreto con el que se firman los tokens: mínimo 32 caracteres, aleatorio y propio de cada instalación.
+taller.jwt.secreto=cambia-este-secreto-por-uno-largo-y-aleatorio-de-32-caracteres-o-mas
+# Horas que dura un token antes de pedir iniciar sesión otra vez.
+taller.jwt.horas=8
+# Puerto de la API (opcional).
+server.port=8080

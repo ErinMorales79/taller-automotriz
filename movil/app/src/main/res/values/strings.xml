@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_nombre">Taller Técnicos</string>
+    <string name="bienvenido">Bienvenido</string>
+    <string name="login_subtitulo">Ingresa con tu usuario de técnico</string>
+    <string name="usuario">Usuario</string>
+    <string name="contrasena">Contraseña</string>
+    <string name="servidor">Servidor</string>
+    <string name="servidor_ayuda">En el emulador: 10.0.2.2:8080. En un teléfono: la IP de tu computador.</string>
+    <string name="ingresar">Ingresar</string>
+    <string name="falta_credenciales">Escribe tu usuario y tu contraseña.</string>
+    <string name="mis_ordenes">Mis órdenes</string>
+    <string name="cerrar_sesion">Cerrar sesión</string>
+    <string name="sin_ordenes">No tienes órdenes asignadas por ahora.</string>
+    <string name="sesion_vencida">Tu sesión terminó. Inicia sesión de nuevo.</string>
+    <string name="detalle_orden">Orden</string>
+    <string name="mi_avance">Mi avance</string>
+    <string name="guardar_avance">Guardar avance</string>
+    <string name="avance_guardado">Avance guardado.</string>
+    <string name="diagnosticos">Diagnóstico</string>
+    <string name="sin_diagnosticos">Todavía no hay un diagnóstico registrado.</string>
+    <string name="observaciones">Observaciones</string>
+    <string name="sin_observaciones">Todavía no hay observaciones.</string>
+    <string name="nueva_observacion">Escribe una observación</string>
+    <string name="agregar_observacion">Agregar observación</string>
+    <string name="observacion_vacia">Escribe la observación antes de agregarla.</string>
+    <string name="observacion_agregada">Observación agregada.</string>
+    <string name="avance_porcentaje">%1$d %%</string>
+    <string name="saludo">Hola, %1$s</string>
+    <string name="tipo_y_prioridad">%1$s  -  Prioridad %2$s</string>
+    <string name="titulo_orden">Orden #%1$d</string>
+    <string name="vehiculo_detalle">%1$s  -  %2$d  -  %3$s</string>
+    <string name="datos_detalle">Tipo: %1$s
+Prioridad: %2$s
+Estado: %3$s
+Ingreso: %4$s</string>
+</resources>

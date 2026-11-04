@@ -123,3 +123,48 @@ R//tiene mi visto bueno
   (se revierte), igual que `DatosPruebaTest`: la base de pruebas debe estar vacía. Con
   `./gradlew :escritorio:test -Dtaller.capturas=<carpeta>` guarda una imagen de cada pantalla
 - R//tiene mi visto bueno
+
+---
+
+## Fase 7: API (para tu visto bueno)
+
+- **Librerías aprobadas por ti:** `java-jwt` 4.4.0 y `spring-boot-starter-test` (versión que gestiona Spring
+  Boot 3.4.1). Seguridad con un filtro propio, sin Spring Security. JSON con Jackson (viene en Spring Boot).
+- **Cambios en `nucleo` (sin tocar el modelo de datos):** `TareaServicio.asignacionesDelTecnico`,
+  `ordenAsignada` y `agregarObservacion`; `AutenticacionServicio.usuarioActivo`.
+  **Regla nueva que interpreté yo:** una observación solo se agrega si el técnico está asignado a la orden
+  y la orden sigue activa. Va auditada (`AGREGAR_OBSERVACION`) y tiene pruebas.
+- **Solo técnicos:** el login con otro rol responde 403 y no entrega token. Ojo: el intento correcto de un
+  no técnico sí queda en la auditoría como `LOGIN`, porque la autenticación ya ocurrió.
+- **Token:** dura 8 horas y no lleva el rol. En cada petición se consulta la base para confirmar que el
+  usuario esté activo y sea técnico, así que un cambio de rol o una desactivación surten efecto de inmediato.
+  A cambio hay una consulta por petición.
+- **Sin límite de intentos de login:** la API no bloquea tras varios intentos fallidos (fuera de alcance).
+  Todos los intentos quedan auditados. Si lo quieres, es una decisión para una fase posterior.
+- **Sin HTTPS:** la API responde HTTP simple. Para la defensa en local sirve; en una instalación real debe ir
+  detrás de HTTPS, porque el token viaja en una cabecera.
+- **Secreto:** va en `config/api.properties` (ignorado por Git); se versiona solo el `.example`.
+- **Prueba no hecha:** no pude arrancar la API real con `curl` (el sistema bloqueó el comando). Lo cubren las
+  13 pruebas de `ApiTecnicosTest` con `MockMvc`; conviene que la arranques una vez con tu `api.properties`.
+- Documentación de rutas para Android en `docs/api.md`.
+
+---
+
+## Fase 8: app móvil (para tu visto bueno)
+
+- **SDK de Android instalado por mí** (a tu pedido) en `C:\Users\erinm\AppData\Local\Android\Sdk`: herramientas de
+  línea de comandos 11076708, plataforma 35, build-tools 35.0.0 y platform-tools. **Acepté las licencias del SDK** al
+  instalarlo. No instalé el emulador ni imágenes de sistema (pesan varios GB); Android Studio los baja desde
+  *Device Manager*. `movil/local.properties` (ignorado por Git) apunta a esa ruta.
+- **Versiones usadas** (las que aprobaste): Retrofit 2.11.0, OkHttp 4.12.0, Gson 2.11.0, plugin de Android Gradle 8.7.3,
+  `compileSdk` 35, `minSdk` 26, Java 17. Las que yo elegí dentro de lo aprobado: AppCompat 1.7.0, Material 1.12.0,
+  RecyclerView 1.3.2, SwipeRefreshLayout 1.1.0, `security-crypto` 1.1.0 y JUnit 5.11.4 (igual que el resto del proyecto).
+  Android lint avisa que existen versiones más nuevas de AppCompat, Material, etc.; no las cambié sin tu aprobación.
+- **Tráfico HTTP permitido** en toda la app (`configuracion_red.xml`) porque la API local no usa HTTPS. Solo para la
+  demostración; ver `docs/movil.md`.
+- **`security-crypto` obsoleta:** Google la marcó así en la 1.1.0. Funciona, pero conviene migrar al Keystore directo si
+  la app va a mantenerse.
+- **Lo que NO pude verificar:** no hay emulador en esta máquina, así que no ejecuté la app. Compila, genera el APK, pasa
+  lint sin errores y sus 10 pruebas de red pasan, pero el aspecto de las pantallas y el flujo completo contra la API real
+  solo se ven al correrla. Pruébalo con el guion de `docs/movil.md`.
+- **Sin pruebas de pantallas:** solo hay pruebas de la capa de red (servidor simulado). La interfaz se revisa a mano.

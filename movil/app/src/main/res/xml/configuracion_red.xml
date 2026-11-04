@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Solo para la demostración en red local: la API del taller responde por HTTP sin cifrar.
+    En una instalación real, quitar cleartextTrafficPermitted y servir la API por HTTPS.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
